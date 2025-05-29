@@ -125,4 +125,22 @@
     <string name="article_error_removing_article">Помилка при видаленні статті</string>
     <string name="article_error_updating_article">Помилка при оновленні статті</string>
     <string name="article_error_filtering_articles">Помилка при фільтрації статей</string>
+    <string name="about_back_button">Назад</string>
+    <string name="about_app_icon">Іконка додатка</string>
+    <string name="about_description_title">Про додаток</string>
+    <string name="about_description_text">Ukraine History Helper - це освітній додаток, розроблений для вивчення історії України. Додаток пропонує інтерактивний спосіб ознайомлення з ключовими подіями, постатями та періодами української історії через статті, квести та систему досягнень.</string>
+    <string name="about_features_title">Функції додатка</string>
+    <string name="about_features_articles">Читання статей про історичні події та постаті України</string>
+    <string name="about_features_quizzes">Проходження вікторин для перевірки знань</string>
+    <string name="about_features_achievements">Отримання досягнень за прогрес у навчанні</string>
+    <string name="about_contact_title">Контактна інформація</string>
+    <string name="about_contact_text">Якщо у вас є питання або пропозиції щодо покращення додатка, будь ласка, зв\'яжіться з нами через електронну пошту: support@ukrainehistory.com</string>
+    <string name="about_copyright">© 2024 Ukraine History Helper. Всі права захищені.</string>
+    <string name="home_about_button">Про додаток</string>
+    <string name="about_version">Версія 1.0.0</string>
+    <string name="home_articles_button">Список статтей</string>
+    <string name="achievements_read_5_articles">Прочитано 5 статей</string>
+    <string name="achievements_average_score_above_80_percent">Середній бал вище 80%</string>
+    <string name="achievements_more_than_10_quizzes_completed">Завершено 10+ вікторин</string>
+    <string name="achievements_favorite_periods_selected">Обрано улюблені періоди</string>
 </resources>

@@ -1,12 +1,10 @@
 package com.example.ukrainehistorylearner.ui.screens
 
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,12 +16,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ukrainehistorylearner.R
+import com.example.ukrainehistorylearner.AboutActivity
+import com.example.ukrainehistorylearner.ArticlesActivity
 import com.example.ukrainehistorylearner.ui.viewmodels.HomeViewModel
 import com.example.ukrainehistorylearner.ui.viewmodels.HomeEvent
 
@@ -33,6 +34,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+
 
     LaunchedEffect(Unit) {
         viewModel.handleEvent(HomeEvent.LoadData)
@@ -75,6 +79,47 @@ fun HomeScreen(
             Text(text = "$message: $detail")
         }
 
+        // About App Button
+        Spacer(modifier = Modifier.height(24.dp))
+        OutlinedButton(
+            onClick = {
+                val intent = Intent(context, AboutActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = stringResource(R.string.home_about_button))
+        }
+
+        // Articles Button
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = {
+                val intent = Intent(context, ArticlesActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = stringResource(R.string.home_articles_button))
+        }
+
+        uiState.errorMessageResId?.let { resId ->
+            val message = stringResource(resId)
+            val detail = uiState.errorMessageDetails ?: ""
+            Text(text = "$message: $detail")
+        }
     }
 }
 
@@ -186,7 +231,7 @@ private fun StatisticCard(
 }
 
 @Composable
-private fun RecentAchievementsSection(achievements: List<String>) {
+private fun RecentAchievementsSection(achievements: List<Int>) {
     Text(
         text = stringResource(R.string.home_recent_achievements_title),
         style = MaterialTheme.typography.titleLarge,
@@ -197,7 +242,7 @@ private fun RecentAchievementsSection(achievements: List<String>) {
     Row(
         modifier = Modifier.horizontalScroll(rememberScrollState()),
     ) {
-        achievements.forEach { achievement ->
+        achievements.forEach { achievementId ->
             ElevatedCard(
                 modifier = Modifier
                     .padding(end = 8.dp)
@@ -207,7 +252,7 @@ private fun RecentAchievementsSection(achievements: List<String>) {
                 )
             ) {
                 Text(
-                    text = achievement,
+                    text = stringResource(achievementId),
                     modifier = Modifier.padding(12.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer

@@ -63,12 +63,4 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         @Suppress("DEPRECATION")
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
-
-    fun applySavedLanguage() {
-        viewModelScope.launch {
-            language.collect { langCode ->
-                updateAppLocale(langCode)
-            }
-        }
-    }
 }

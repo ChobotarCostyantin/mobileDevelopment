@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.User
 import com.example.ukrainehistorylearner.data.repository.UserRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class HomeUiState(
@@ -17,7 +19,7 @@ data class HomeUiState(
     val articlesReadCount: Int = 0,
     val quizzesCompletedCount: Int = 0,
     val totalScore: Int = 0,
-    val recentAchievements: List<String> = emptyList(),
+    val recentAchievements: List<Int> = emptyList(),
     val recommendedArticles: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessageResId: Int? = null,

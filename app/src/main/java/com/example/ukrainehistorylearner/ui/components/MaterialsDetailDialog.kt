@@ -47,7 +47,6 @@ fun MaterialDetailsDialog(
                 Text("${stringResource(R.string.period)}: ${material.period.getYearRange(context)}")
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Відображення специфічної інформації в залежності від типу матеріалу
                 when (material) {
                     is HistoricalArticle -> {
                         ArticleDetails(article = material)

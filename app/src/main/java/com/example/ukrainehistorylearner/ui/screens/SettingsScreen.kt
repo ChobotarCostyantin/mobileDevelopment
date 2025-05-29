@@ -115,45 +115,45 @@ fun SettingsScreen(
         }
 
         // 4. Тема
-        Text(
-            text = stringResource(R.string.settings_theme),
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        val themes = listOf(
-            "light" to stringResource(R.string.theme_light),
-            "dark" to stringResource(R.string.theme_dark),
-            "system" to stringResource(R.string.theme_system)
-        )
-        var expandedTheme by remember { mutableStateOf(false) }
-
-        Box {
-            OutlinedButton(
-                onClick = { expandedTheme = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(themes.first { it.first == theme }.second)
-                Spacer(Modifier.weight(1f))
-                Icon(
-                    Icons.Default.ArrowForward,
-                    contentDescription = "Вибрати"
-                )
-            }
-            DropdownMenu(
-                expanded = expandedTheme,
-                onDismissRequest = { expandedTheme = false }
-            ) {
-                themes.forEach { (code, label) ->
-                    DropdownMenuItem(
-                        text = { Text(label) },
-                        onClick = {
-                            viewModel.setTheme(code)
-                            expandedTheme = false
-                        }
-                    )
-                }
-            }
-        }
+//        Text(
+//            text = stringResource(R.string.settings_theme),
+//            style = MaterialTheme.typography.bodyLarge
+//        )
+//
+//        val themes = listOf(
+//            "light" to stringResource(R.string.theme_light),
+//            "dark" to stringResource(R.string.theme_dark),
+//            "system" to stringResource(R.string.theme_system)
+//        )
+//        var expandedTheme by remember { mutableStateOf(false) }
+//
+//        Box {
+//            OutlinedButton(
+//                onClick = { expandedTheme = true },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text(themes.first { it.first == theme }.second)
+//                Spacer(Modifier.weight(1f))
+//                Icon(
+//                    Icons.Default.ArrowForward,
+//                    contentDescription = "Вибрати"
+//                )
+//            }
+//            DropdownMenu(
+//                expanded = expandedTheme,
+//                onDismissRequest = { expandedTheme = false }
+//            ) {
+//                themes.forEach { (code, label) ->
+//                    DropdownMenuItem(
+//                        text = { Text(label) },
+//                        onClick = {
+//                            viewModel.setTheme(code)
+//                            expandedTheme = false
+//                        }
+//                    )
+//                }
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

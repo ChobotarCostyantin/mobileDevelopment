@@ -20,6 +20,12 @@
     <string name="password">Password</string>
     <string name="birthdate">Birthdate</string>
 
+    // Achievements
+    <string name="achievements_read_5_articles">Read 5 articles</string>
+    <string name="achievements_average_score_above_80_percent">Average score is above 80%</string>
+    <string name="achievements_more_than_10_quizzes_completed">10+ quizzes completed</string>
+    <string name="achievements_favorite_periods_selected">Favorite periods selected</string>
+
     // Navigation
     <string name="nav_home">Home</string>
     <string name="nav_quiz">Quiz</string>
@@ -68,6 +74,11 @@
     <string name="article_author_error">The author cannot be empty</string>
     <string name="article_word_count_error">Enter the correct quantity (>0)</string>
     <string name="article_edit_title">Edit article</string>
+    <string name="article_error_loading_articles">Error while loading articles</string>
+    <string name="article_error_adding_article">Error while adding article</string>
+    <string name="article_error_removing_article">Error while removing article</string>
+    <string name="article_error_updating_article">Error while updating article</string>
+    <string name="article_error_filtering_articles">Error while filtering articles</string>
 
     // Login
     <string name="login_welcome">Welcome to application Ukraine History Learner</string>
@@ -87,6 +98,8 @@
     <string name="home_recommended_articles_title">Recommended articles</string>
     <string name="home_error_loading_data">Error loading data</string>
     <string name="home_error_statistics_update">Error updating statistics</string>
+    <string name="home_about_button">About app</string>
+    <string name="home_articles_button">Articles list</string>
 
     // Quiz
     <string name="quiz_titles">Quiz on Ukrainian history</string>
@@ -140,10 +153,19 @@
     <string name="profile_favorite_periods_title">Favourite periods</string>
     <string name="profile_edit_profile">Edit profile</string>
     <string name="profile_logout">Logout</string>
-    <string name="article_error_loading_articles">Error while loading articles</string>
-    <string name="article_error_adding_article">Error while adding article</string>
-    <string name="article_error_removing_article">Error while removing article</string>
-    <string name="article_error_updating_article">Error while updating article</string>
-    <string name="article_error_filtering_articles">Error while filtering articles</string>
+
+    // About
+    <string name="about_back_button">Back</string>
+    <string name="about_app_icon">App icon</string>
+    <string name="about_description_title">About application</string>
+    <string name="about_description_text">Ukraine History Helper is an educational app designed to help learn about the history of Ukraine. The app offers an interactive way to learn about key events, figures, and periods of Ukrainian history through articles, quests, and an achievement system.</string>
+    <string name="about_features_title">App features</string>
+    <string name="about_features_articles">Reading articles about historical events and figures in Ukraine</string>
+    <string name="about_features_quizzes">Completing quizzes to check your knowledge</string>
+    <string name="about_features_achievements">Receiving achievements for progress in learning</string>
+    <string name="about_contact_title">Contact information</string>
+    <string name="about_contact_text">If you have any questions or suggestions on how to improve the application, please contact us via email: support@ukrainehistory.com</string>
+    <string name="about_copyright">© 2024 Ukraine History Helper. All rights reserved.</string>
+    <string name="about_version">Version 1.0.0</string>
 
 </resources>

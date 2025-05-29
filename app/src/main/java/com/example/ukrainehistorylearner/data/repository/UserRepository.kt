@@ -1,9 +1,12 @@
 package com.example.ukrainehistorylearner.data.repository
 
+import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.User
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
+import com.example.ukrainehistorylearner.utils.ArticleDataBase
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 
@@ -15,9 +18,9 @@ data class UserStats(
     val favoritePeriodsCount: Int
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 class UserRepository {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private var currentUser: User? = User(
         id = "user_123",
         username = "admin",
@@ -44,10 +47,10 @@ class UserRepository {
     // Симуляція досягнень користувача
     private val userAchievements = mapOf(
         "user_123" to listOf(
-            "Прочитано 5 статей",
-            "Середній бал вище 80%",
-            "Завершено 10+ вікторин",
-            "Обрано улюблені періоди"
+            R.string.achievements_read_5_articles,
+            R.string.achievements_average_score_above_80_percent,
+            R.string.achievements_more_than_10_quizzes_completed,
+            R.string.achievements_favorite_periods_selected
         )
     )
 
@@ -64,14 +67,12 @@ class UserRepository {
     // Симуляція всіх користувачів для перевірки унікальності
     private val existingUsers = mutableSetOf("admin", "taken_username")
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getCurrentUser(): User? {
         // Симуляція мережевого запиту
         delay(500)
         return currentUser
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updateUser(user: User) {
         // Симуляція мережевого запиту
         delay(800)
@@ -99,7 +100,7 @@ class UserRepository {
         return userStats[userId] ?: UserStats(0, 0f, 0, 0, 0)
     }
 
-    suspend fun getRecentAchievements(userId: String): List<String> {
+    suspend fun getRecentAchievements(userId: String): List<Int> {
         // Симуляція мережевого запиту
         delay(200)
         return userAchievements[userId] ?: emptyList()
@@ -111,7 +112,6 @@ class UserRepository {
         return recommendedArticles[userId] ?: emptyList()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun markArticleAsClicked(articleId: Int) {
         // Симуляція запиту для відстеження кліків по статтях
         delay(100)
@@ -127,7 +127,6 @@ class UserRepository {
         println("Стаття з ID $articleId помічена як переглянута")
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun login(username: String, password: String): User {
         // Симуляція мережевого запиту для авторизації
         delay(1000)
@@ -151,7 +150,6 @@ class UserRepository {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun register(username: String, password: String, birthDate: LocalDate): User {
         // Симуляція мережевого запиту для реєстрації
         delay(1200)
@@ -178,7 +176,6 @@ class UserRepository {
         return newUser
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun logout() {
         // Симуляція очищення даних
         delay(200)
@@ -198,7 +195,6 @@ class UserRepository {
     }
 
     // Метод для отримання поточного стану авторизації
-    @RequiresApi(Build.VERSION_CODES.O)
     fun isUserLoggedIn(): Boolean {
         return currentUser != null
     }

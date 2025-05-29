@@ -45,7 +45,6 @@ import com.example.ukrainehistorylearner.ui.theme.AppTheme
 import com.example.ukrainehistorylearner.ui.screens.ProfileScreen
 import com.example.ukrainehistorylearner.ui.screens.HomeScreen
 import com.example.ukrainehistorylearner.ui.screens.SettingsScreen
-import com.example.ukrainehistorylearner.ui.viewmodels.SettingsViewModel
 import com.example.ukrainehistorylearner.utils.LocaleHelper
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -105,15 +104,6 @@ data class NavItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp() {
-    val context = LocalContext.current
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = ViewModelProvider.AndroidViewModelFactory(context.applicationContext as Application)
-    )
-
-    LaunchedEffect(Unit) {
-        settingsViewModel.applySavedLanguage()
-    }
-
     val windowSize = currentWindowAdaptiveInfo().windowSizeClass
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
