@@ -1,5 +1,7 @@
 package com.example.ukrainehistorylearner.ui.viewmodels
 
+import android.annotation.SuppressLint
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,12 +30,6 @@ sealed class QuizEvent {
 class QuizViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(QuizUiState())
     val uiState: StateFlow<QuizUiState> = _uiState.asStateFlow()
-
-    private val difficulties = mapOf(
-        0.0f to "Легкий",
-        0.5f to "Середній",
-        1.0f to "Складний"
-    )
 
     fun handleEvent(event: QuizEvent) {
         when (event) {
@@ -73,18 +69,7 @@ class QuizViewModel : ViewModel() {
 
     private fun startQuiz() {
         val currentState = _uiState.value
-
         _uiState.value = currentState.copy(isQuizStarted = true)
-
-        println("Запуск вікторини: " +
-                "Складність - ${getDifficultyText(currentState.selectedDifficulty)}, " +
-                "Період - ${currentState.selectedPeriod.getYearRange()}, " +
-                "Кількість питань - ${currentState.questionCount}, " +
-                "Показувати довідку - ${currentState.showInfoAfterQuestion}")
-    }
-
-    fun getDifficultyText(difficulty: Float): String {
-        return difficulties[difficulty] ?: "Невідомий"
     }
 
     val availableQuestionCounts = listOf(5, 10, 15)

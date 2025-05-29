@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.data.repository.ArticlesRepository
 import com.example.ukrainehistorylearner.data.repository.ArticlesRepositoryImpl
 import com.example.ukrainehistorylearner.model.HistoricalArticle
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 data class ArticlesUiState(
     val articles: List<HistoricalArticle> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessageResId: Int? = null,
     val showAddDialog: Boolean = false,
     val showUpdateDialog: Boolean = false,
     val selectedMaterial: HistoricalArticle? = null,
@@ -95,7 +96,7 @@ class ArticlesViewModel(
                 updateFilteredArticles()
             }
             is ArticlesEvent.ClearError -> {
-                _uiState.value = _uiState.value.copy(errorMessage = null)
+                _uiState.value = _uiState.value.copy(errorMessageResId = null)
             }
         }
     }
@@ -118,7 +119,7 @@ class ArticlesViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка при завантаженні статей"
+                    errorMessageResId = R.string.article_error_loading_articles
                 )
             }
         }
@@ -126,7 +127,7 @@ class ArticlesViewModel(
 
     private fun addArticle(article: HistoricalArticle) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageResId = null)
 
             val success = repository.addArticle(article)
             if (success) {
@@ -138,7 +139,7 @@ class ArticlesViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка при додаванні статті"
+                    errorMessageResId = R.string.article_error_adding_article
                 )
             }
         }
@@ -146,7 +147,7 @@ class ArticlesViewModel(
 
     private fun removeArticle(article: HistoricalArticle) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageResId = null)
 
             val success = repository.removeArticle(article)
             if (success) {
@@ -155,7 +156,7 @@ class ArticlesViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка при видаленні статті"
+                    errorMessageResId = R.string.article_error_removing_article
                 )
             }
         }
@@ -163,7 +164,7 @@ class ArticlesViewModel(
 
     private fun updateArticle(article: HistoricalArticle) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageResId = null)
             val success = repository.updateArticle(article)
             if (success) {
                 _uiState.value = _uiState.value.copy(
@@ -174,7 +175,7 @@ class ArticlesViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка при оновленні статті"
+                    errorMessageResId = R.string.article_error_updating_article
                 )
             }
         }
@@ -198,7 +199,7 @@ class ArticlesViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка при фільтрації статей"
+                    errorMessageResId = R.string.article_error_filtering_articles
                 )
             }
         }

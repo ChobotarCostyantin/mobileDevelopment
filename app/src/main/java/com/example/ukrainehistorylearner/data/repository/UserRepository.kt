@@ -1,5 +1,7 @@
-package com.example.ukrainehistorylearner.repository
+package com.example.ukrainehistorylearner.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.ukrainehistorylearner.model.User
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
 import kotlinx.coroutines.delay
@@ -15,11 +17,12 @@ data class UserStats(
 
 class UserRepository {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private var currentUser: User? = User(
-        id = "user123",
+        id = "user_123",
         username = "admin",
         password = "password",
-        birthDate = "1995-05-15",
+        birthDate = LocalDate.of(1995, 5, 15),
         favoriteHistoricalPeriods = listOf(
             HistoricalPeriod.KYIV_RUS,
             HistoricalPeriod.COSSACK_ERA
@@ -29,7 +32,7 @@ class UserRepository {
 
     // Симуляція статистики користувача
     private val userStats = mapOf(
-        "user123" to UserStats(
+        "user_123" to UserStats(
             articlesRead = 5,
             averageQuizScore = 87.5f,
             totalScore = 1250,
@@ -40,7 +43,7 @@ class UserRepository {
 
     // Симуляція досягнень користувача
     private val userAchievements = mapOf(
-        "user123" to listOf(
+        "user_123" to listOf(
             "Прочитано 5 статей",
             "Середній бал вище 80%",
             "Завершено 10+ вікторин",
@@ -61,12 +64,14 @@ class UserRepository {
     // Симуляція всіх користувачів для перевірки унікальності
     private val existingUsers = mutableSetOf("admin", "taken_username")
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getCurrentUser(): User? {
         // Симуляція мережевого запиту
         delay(500)
         return currentUser
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updateUser(user: User) {
         // Симуляція мережевого запиту
         delay(800)
@@ -106,6 +111,7 @@ class UserRepository {
         return recommendedArticles[userId] ?: emptyList()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun markArticleAsClicked(articleId: Int) {
         // Симуляція запиту для відстеження кліків по статтях
         delay(100)
@@ -121,6 +127,7 @@ class UserRepository {
         println("Стаття з ID $articleId помічена як переглянута")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun login(username: String, password: String): User {
         // Симуляція мережевого запиту для авторизації
         delay(1000)
@@ -128,10 +135,10 @@ class UserRepository {
         // Симуляція перевірки облікових даних
         if (username == "admin" && password == "password") {
             currentUser = User(
-                id = "user123",
+                id = "user_123",
                 username = username,
                 password = password,
-                birthDate = "1995-05-15",
+                birthDate = LocalDate.of(1995, 5, 15),
                 favoriteHistoricalPeriods = listOf(
                     HistoricalPeriod.KYIV_RUS,
                     HistoricalPeriod.COSSACK_ERA
@@ -144,6 +151,7 @@ class UserRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun register(username: String, password: String, birthDate: LocalDate): User {
         // Симуляція мережевого запиту для реєстрації
         delay(1200)
@@ -158,7 +166,7 @@ class UserRepository {
             id = "user_${System.currentTimeMillis()}",
             username = username,
             password = password,
-            birthDate = birthDate.toString(),
+            birthDate = birthDate,
             favoriteHistoricalPeriods = emptyList(),
             readArticlesIds = emptyList()
         )
@@ -170,6 +178,7 @@ class UserRepository {
         return newUser
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun logout() {
         // Симуляція очищення даних
         delay(200)
@@ -189,6 +198,7 @@ class UserRepository {
     }
 
     // Метод для отримання поточного стану авторизації
+    @RequiresApi(Build.VERSION_CODES.O)
     fun isUserLoggedIn(): Boolean {
         return currentUser != null
     }

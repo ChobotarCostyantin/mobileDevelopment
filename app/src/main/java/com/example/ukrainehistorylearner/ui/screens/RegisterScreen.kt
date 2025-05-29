@@ -11,15 +11,19 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.ui.components.AdaptiveDatePickerDialog
+import com.example.ukrainehistorylearner.ui.viewmodels.RegisterError
 import com.example.ukrainehistorylearner.ui.viewmodels.RegisterEvent
 import com.example.ukrainehistorylearner.ui.viewmodels.RegisterViewModel
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -29,6 +33,20 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val errorMessage = when (uiState.errorMessage) {
+        RegisterError.EMPTY_USERNAME -> stringResource(R.string.register_error_empty_username)
+        RegisterError.SHORT_USERNAME -> stringResource(R.string.register_error_short_username)
+        RegisterError.EMPTY_PASSWORD -> stringResource(R.string.register_error_empty_password)
+        RegisterError.SHORT_PASSWORD -> stringResource(R.string.register_error_short_password)
+        RegisterError.EMPTY_CONFIRM_PASSWORD -> stringResource(R.string.register_error_empty_confirm_password)
+        RegisterError.PASSWORD_MISMATCH -> stringResource(R.string.register_error_passwords_mismatch)
+        RegisterError.NO_BIRTHDATE -> stringResource(R.string.register_error_no_birthdate)
+        RegisterError.BIRTHDATE_IN_FUTURE -> stringResource(R.string.register_error_birthdate_in_future)
+        RegisterError.PRIVACY_POLICY_NOT_ACCEPTED -> stringResource(R.string.register_error_privacy_policy_not_accepted)
+        RegisterError.USER_ALREADY_EXISTS -> stringResource(R.string.register_error_user_already_exists)
+        null -> null
+    }
 
     // Навігація при успішній реєстрації
     LaunchedEffect(uiState.isRegistrationSuccessful) {
@@ -45,7 +63,7 @@ fun RegisterScreen(
         verticalArrangement = Arrangement.Top,
     ) {
         Text(
-            text = "Реєстрація нового облікового запису",
+            text = stringResource(R.string.register_title),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 24.dp)
@@ -54,26 +72,44 @@ fun RegisterScreen(
         OutlinedTextField(
             value = uiState.username,
             onValueChange = { viewModel.handleEvent(RegisterEvent.UsernameChanged(it)) },
-            label = { Text("Логін") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             singleLine = true,
-            enabled = !uiState.isLoading
+            enabled = !uiState.isLoading,
+            isError = uiState.username.isNotBlank() && uiState.username.length < 3,
+            supportingText = {
+                if (uiState.username.isNotBlank() && uiState.username.length < 3) {
+                    Text(
+                        text = stringResource(R.string.register_error_short_username),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         )
 
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.handleEvent(RegisterEvent.PasswordChanged(it)) },
-            label = { Text("Пароль") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
                 IconButton(onClick = { viewModel.handleEvent(RegisterEvent.TogglePasswordVisibility) }) {
                     Text(text = if (uiState.isPasswordVisible) "🙈" else "👁️")
+                }
+            },
+            isError = uiState.password.isNotBlank() && uiState.password.length < 6,
+            supportingText = {
+                if (uiState.password.isNotBlank() && uiState.password.length < 6) {
+                    Text(
+                        text = stringResource(R.string.register_error_short_password),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             singleLine = true,
@@ -83,10 +119,10 @@ fun RegisterScreen(
         OutlinedTextField(
             value = uiState.confirmPassword,
             onValueChange = { viewModel.handleEvent(RegisterEvent.ConfirmPasswordChanged(it)) },
-            label = { Text("Підтвердження паролю") },
+            label = { Text(stringResource(R.string.register_confirm_password)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
@@ -97,7 +133,10 @@ fun RegisterScreen(
             isError = uiState.password.isNotBlank() && uiState.confirmPassword.isNotBlank() && !viewModel.passwordsMatch,
             supportingText = {
                 if (uiState.password.isNotBlank() && uiState.confirmPassword.isNotBlank() && !viewModel.passwordsMatch) {
-                    Text("Паролі не збігаються")
+                    Text(
+                        text = stringResource(R.string.register_error_passwords_mismatch),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             singleLine = true,
@@ -112,16 +151,26 @@ fun RegisterScreen(
                 ""
             },
             onValueChange = { /* Поле лише для відображення */ },
-            label = { Text("Дата народження") },
+            label = { Text(stringResource(R.string.birthdate)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { viewModel.handleEvent(RegisterEvent.ShowDatePicker) }) {
                     Text("📅")
                 }
             },
+            isError = uiState.birthDate != null && uiState.birthDate!!.isAfter(LocalDate.now()),
+            supportingText = {
+                if (uiState.birthDate != null && uiState.birthDate!!.isAfter(LocalDate.now())) {
+                    Text(
+                        text = stringResource(R.string.register_error_birthdate_in_future),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            singleLine = true,
             enabled = !uiState.isLoading
         )
 
@@ -129,7 +178,7 @@ fun RegisterScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -139,7 +188,7 @@ fun RegisterScreen(
             )
 
             Text(
-                text = "Я ознайомився та приймаю політику конфіденційності",
+                text = stringResource(R.string.register_accept_privacy_policy),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -147,7 +196,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Відображення помилок
-        if (uiState.errorMessage != null) {
+        if (errorMessage != null) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +204,7 @@ fun RegisterScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(
-                    text = uiState.errorMessage!!,
+                    text = errorMessage,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.onErrorContainer
                 )
@@ -175,7 +224,7 @@ fun RegisterScreen(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Text("Зареєструватися")
+                Text(stringResource(R.string.register_register))
             }
         }
     }

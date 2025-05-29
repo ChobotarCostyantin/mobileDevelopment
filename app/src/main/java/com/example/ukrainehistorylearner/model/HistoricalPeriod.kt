@@ -1,5 +1,8 @@
 package com.example.ukrainehistorylearner.model
 
+import android.content.Context
+import com.example.ukrainehistorylearner.R
+
 enum class HistoricalPeriod {
     ANCIENT_TIMES,
     KYIV_RUS,
@@ -9,30 +12,24 @@ enum class HistoricalPeriod {
     SOVIET_ERA,
     INDEPENDENCE;
 
-    fun getYearRange(): String {
+    fun getYearRange(context: Context): String {
         return when (this) {
-            ANCIENT_TIMES -> "Стародавні часи (до 882 р)."
-            KYIV_RUS -> "Київська Русь (882-1240 рр)."
-            COSSACK_ERA -> "Козацька доба (1550-1775 рр)."
-            IMPERIAL_PERIOD -> "Імперська доба (1775-1917 рр)."
-            REVOLUTION_PERIOD -> "Українська революція (1917-1922 рр)."
-            SOVIET_ERA -> "Радянський період (1922-1991 рр)."
-            INDEPENDENCE -> "Незалежність (1991-сьогодення)."
+            ANCIENT_TIMES -> context.getString(R.string.ancient_times)
+            KYIV_RUS -> context.getString(R.string.kyiv_rus)
+            COSSACK_ERA -> context.getString(R.string.cossack_era)
+            IMPERIAL_PERIOD -> context.getString(R.string.imperial_period)
+            REVOLUTION_PERIOD -> context.getString(R.string.revolution_period)
+            SOVIET_ERA -> context.getString(R.string.soviet_era)
+            INDEPENDENCE -> context.getString(R.string.independence)
         }
     }
 
+
     companion object {
-        fun getEntryByYearRange(yearRange: String): HistoricalPeriod {
-            return when (yearRange) {
-                "Стародавні часи (до 882 р)." -> ANCIENT_TIMES
-                "Київська Русь (882-1240 рр)." -> KYIV_RUS
-                "Козацька доба (1550-1775 рр)." -> COSSACK_ERA
-                "Імперська доба (1775-1917 рр)." -> IMPERIAL_PERIOD
-                "Українська революція (1917-1922 рр)." -> REVOLUTION_PERIOD
-                "Радянський період (1922-1991 рр)." -> SOVIET_ERA
-                "Незалежність (1991-сьогодення)." -> INDEPENDENCE
-                else -> throw IllegalArgumentException("Невідома діапазон років: $yearRange")
-            }
+        fun getEntryByYearRange(context: Context, yearRange: String): HistoricalPeriod {
+            return entries.firstOrNull { it.getYearRange(context) == yearRange }
+                ?: throw IllegalArgumentException("Невідомий діапазон років: $yearRange")
         }
+
     }
 }

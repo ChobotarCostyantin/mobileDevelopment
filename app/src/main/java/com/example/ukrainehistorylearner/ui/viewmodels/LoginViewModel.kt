@@ -1,6 +1,7 @@
 package com.example.ukrainehistorylearner.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.ukrainehistorylearner.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +11,7 @@ data class LoginUiState(
     val password: String = "",
     val isPasswordVisible: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessageResId: Int? = null,
     val isLoginSuccessful: Boolean = false
 )
 
@@ -31,13 +32,13 @@ class LoginViewModel : ViewModel() {
             is LoginEvent.UsernameChanged -> {
                 _uiState.value = _uiState.value.copy(
                     username = event.username,
-                    errorMessage = null
+                    errorMessageResId = null
                 )
             }
             is LoginEvent.PasswordChanged -> {
                 _uiState.value = _uiState.value.copy(
                     password = event.password,
-                    errorMessage = null
+                    errorMessageResId = null
                 )
             }
             is LoginEvent.TogglePasswordVisibility -> {
@@ -49,7 +50,7 @@ class LoginViewModel : ViewModel() {
                 performLogin()
             }
             is LoginEvent.ClearError -> {
-                _uiState.value = _uiState.value.copy(errorMessage = null)
+                _uiState.value = _uiState.value.copy(errorMessageResId = null)
             }
         }
     }
@@ -59,25 +60,23 @@ class LoginViewModel : ViewModel() {
 
         if (currentState.username.isBlank() || currentState.password.isBlank()) {
             _uiState.value = currentState.copy(
-                errorMessage = "Будь ласка, заповніть всі поля"
+                errorMessageResId = R.string.login_error_empty_fields
             )
             return
         }
 
-        _uiState.value = currentState.copy(isLoading = true, errorMessage = null)
+        _uiState.value = currentState.copy(isLoading = true, errorMessageResId = null)
 
         if (currentState.username == "admin" && currentState.password == "password") {
             _uiState.value = currentState.copy(
                 isLoading = false,
                 isLoginSuccessful = true
             )
-            println("Успішна авторизація: логін - ${currentState.username}")
         } else {
             _uiState.value = currentState.copy(
                 isLoading = false,
-                errorMessage = "Невірний логін або пароль"
+                errorMessageResId = R.string.login_error_incorrect_credentials
             )
-            println("Невдала спроба авторизації: логін - ${currentState.username}")
         }
     }
 

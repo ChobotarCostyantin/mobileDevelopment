@@ -1,5 +1,6 @@
 package com.example.ukrainehistorylearner.ui.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,11 +14,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PeriodDropdown(
+    context: Context,
     selected: HistoricalPeriod,
     onPeriodSelected: (HistoricalPeriod) -> Unit
 ) {
@@ -29,12 +33,11 @@ fun PeriodDropdown(
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = selected.getYearRange(),
+            value = selected.getYearRange(context),
             onValueChange = {},
-            label = { Text("Період") },
+            label = { Text(stringResource(R.string.period)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor()
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
 
         ExposedDropdownMenu(
@@ -43,7 +46,7 @@ fun PeriodDropdown(
         ) {
             HistoricalPeriod.entries.forEach { period ->
                 DropdownMenuItem(
-                    text = { Text(period.getYearRange()) },
+                    text = { Text(period.getYearRange(context)) },
                     onClick = {
                         onPeriodSelected(period)
                         expanded = false

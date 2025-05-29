@@ -1,5 +1,6 @@
 package com.example.ukrainehistorylearner.ui.components
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -7,12 +8,15 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.*
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.HistoricalArticle
-import com.example.ukrainehistorylearner.model.HistoricalMaterial
 
 @Composable
 fun MaterialCard(
+    context: Context,
     material: HistoricalArticle,
     onClick: () -> Unit = {},
     onDelete: (HistoricalArticle) -> Unit = {}
@@ -48,7 +52,7 @@ fun MaterialCard(
                 }
             },
             supportingContent = {
-                Text(text = material.period.getYearRange())
+                Text(text = material.period.getYearRange(context))
             },
             colors = ListItemDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -59,8 +63,8 @@ fun MaterialCard(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Підтвердження") },
-            text = { Text("Ви дійсно хочете видалити матеріал \"${material.title}\"?") },
+            title = { Text(stringResource(R.string.article_delete_title)) },
+            text = { Text("${stringResource(R.string.article_delete_message)}: \"${material.title}\"?") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -68,12 +72,12 @@ fun MaterialCard(
                         showDeleteDialog = false
                     }
                 ) {
-                    Text("Так")
+                    Text(stringResource(R.string.yes))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Скасувати")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

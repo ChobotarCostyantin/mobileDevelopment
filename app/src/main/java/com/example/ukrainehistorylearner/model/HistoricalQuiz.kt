@@ -1,5 +1,6 @@
 package com.example.ukrainehistorylearner.model
 
+import android.content.Context
 import java.util.UUID
 
 class HistoricalQuiz(
@@ -11,8 +12,8 @@ class HistoricalQuiz(
     var completionRate: Float = 0.0f
 ) : HistoricalMaterial(id, title, period) {
 
-    override fun display() {
-        println("Тест: $title (Питань: $questionCount, Складність: $difficulty)")
+    override fun display(context: Context) {
+        println("Тест: $title, Період: ${period.getYearRange(context)} (Питань: $questionCount, Складність: $difficulty)")
     }
 
     fun calculateScore(correctAnswers: Int, timeSpent: Int = 0): Float {

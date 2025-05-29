@@ -8,19 +8,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.ui.viewmodels.LoginEvent
 import com.example.ukrainehistorylearner.ui.viewmodels.LoginViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit = {},
     viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -33,7 +34,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Ласкаво просимо до застосунку Історія України",
+            text = stringResource(R.string.login_welcome),
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 32.dp)
@@ -42,7 +43,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.username,
             onValueChange = { viewModel.handleEvent(LoginEvent.UsernameChanged(it)) },
-            label = { Text("Логін") },
+            label = { Text(stringResource(R.string.username)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -53,7 +54,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = uiState.password,
             onValueChange = { viewModel.handleEvent(LoginEvent.PasswordChanged(it)) },
-            label = { Text("Пароль") },
+            label = { Text(stringResource(R.string.password)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -70,9 +71,9 @@ fun LoginScreen(
             enabled = !uiState.isLoading
         )
 
-        if (uiState.errorMessage != null) {
+        uiState.errorMessageResId?.let { resId ->
             Text(
-                text = uiState.errorMessage!!,
+                text = stringResource(id = resId),
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -87,7 +88,7 @@ fun LoginScreen(
                 .height(50.dp),
             enabled = viewModel.isFormValid && !uiState.isLoading
         ) {
-            Text("Увійти")
+            Text(stringResource(R.string.login_login))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ukrainehistorylearner.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,9 +13,11 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.HistoricalArticle
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
 import com.example.ukrainehistorylearner.ui.components.AdaptiveAddArticleDialog
@@ -53,7 +56,7 @@ fun HistoricalArticleScreen(
             )
 
             // Повідомлення про помилки
-            if (uiState.errorMessage != null) {
+            uiState.errorMessageResId?.let { resId ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -68,7 +71,7 @@ fun HistoricalArticleScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = uiState.errorMessage!!,
+                            text = stringResource(resId),
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.weight(1f)
                         )
@@ -99,15 +102,16 @@ fun HistoricalArticleScreen(
                     MaterialCard(
                         material = material,
                         onClick = { viewModel.handleEvent(ArticlesEvent.SelectArticle(material)) },
-                        onDelete = { viewModel.handleEvent(ArticlesEvent.RemoveArticle(material)) }
+                        onDelete = { viewModel.handleEvent(ArticlesEvent.RemoveArticle(material)) },
+                        context = LocalContext.current
                     )
                 }
 
-                item {
-                    Spacer(Modifier.height(24.dp))
-                    // Демонстрація списку і плитки
-                    DemoCollectionsView(uiState.articles)
-                }
+//                item {
+//                    Spacer(Modifier.height(24.dp))
+//                    // Демонстрація списку і плитки
+//                    DemoCollectionsView(uiState.articles)
+//                }
             }
         }
 
@@ -142,8 +146,9 @@ fun HistoricalArticleScreen(
                 material = material,
                 onEdit = {
                     viewModel.handleEvent(ArticlesEvent.ShowUpdateDialog)
-                         },
-                onDismiss = { viewModel.handleEvent(ArticlesEvent.SelectArticle(null)) }
+                },
+                onDismiss = { viewModel.handleEvent(ArticlesEvent.SelectArticle(null)) },
+                context = LocalContext.current
             )
         }
     }
@@ -165,7 +170,7 @@ fun SearchAndFiltersSection(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChanged,
-            label = { Text("Пошук") },
+            label = { Text(stringResource(R.string.search)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Пошук") },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
@@ -182,6 +187,7 @@ fun SearchAndFiltersSection(
 
         // Фільтр по періоду
         PeriodFilterDropdown(
+            context = LocalContext.current,
             selectedPeriod = selectedPeriod,
             onPeriodSelected = onPeriodFilterChanged
         )
@@ -191,6 +197,7 @@ fun SearchAndFiltersSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PeriodFilterDropdown(
+    context: Context,
     selectedPeriod: HistoricalPeriod?,
     onPeriodSelected: (HistoricalPeriod?) -> Unit
 ) {
@@ -202,9 +209,9 @@ fun PeriodFilterDropdown(
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = selectedPeriod?.getYearRange() ?: "Всі періоди",
+            value = selectedPeriod?.getYearRange(context) ?: stringResource(R.string.all_periods),
             onValueChange = {},
-            label = { Text("Фільтр по періоду") },
+            label = { Text(stringResource(R.string.period_filter)) },
             trailingIcon = {
                 Row {
                     if (selectedPeriod != null) {
@@ -223,7 +230,7 @@ fun PeriodFilterDropdown(
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Всі періоди") },
+                text = { Text(stringResource(R.string.all_periods)) },
                 onClick = {
                     onPeriodSelected(null)
                     expanded = false
@@ -231,7 +238,7 @@ fun PeriodFilterDropdown(
             )
             HistoricalPeriod.entries.forEach { period ->
                 DropdownMenuItem(
-                    text = { Text(period.getYearRange()) },
+                    text = { Text(period.getYearRange(context)) },
                     onClick = {
                         onPeriodSelected(period)
                         expanded = false

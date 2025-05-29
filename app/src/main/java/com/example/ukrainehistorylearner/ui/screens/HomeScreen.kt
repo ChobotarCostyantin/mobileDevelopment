@@ -1,5 +1,7 @@
 package com.example.ukrainehistorylearner.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -16,14 +18,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.ui.viewmodels.HomeViewModel
 import com.example.ukrainehistorylearner.ui.viewmodels.HomeEvent
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
@@ -40,7 +44,7 @@ fun HomeScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        WelcomeSection(username = uiState.currentUser?.username ?: "Користувач")
+        WelcomeSection(username = uiState.currentUser?.username ?: stringResource(R.string.home_welcome_default_username))
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -65,6 +69,12 @@ fun HomeScreen(
                 }
             )
         }
+        uiState.errorMessageResId?.let { resId ->
+            val message = stringResource(resId)
+            val detail = uiState.errorMessageDetails ?: ""
+            Text(text = "$message: $detail")
+        }
+
     }
 }
 
@@ -80,14 +90,14 @@ private fun WelcomeSection(username: String) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Вітаємо, $username!",
+                text = "${stringResource(R.string.home_welcome)}, $username!",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Готові дізнатися більше про історію України?",
+                text = stringResource(R.string.home_welcome_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -102,7 +112,7 @@ private fun StatisticsSection(
     totalScore: Int
 ) {
     Text(
-        text = "Ваша статистика",
+        text = stringResource(R.string.home_statistics_title),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -113,19 +123,19 @@ private fun StatisticsSection(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatisticCard(
-            title = "Прочитано статей",
+            title = stringResource(R.string.home_statistics_articles_read),
             value = articlesRead.toString(),
             icon = Icons.Default.Search,
             modifier = Modifier.weight(1f)
         )
         StatisticCard(
-            title = "Завершено вікторин",
+            title = stringResource(R.string.home_statistics_quizzes_completed),
             value = quizzesCompleted.toString(),
             icon = Icons.Default.Info,
             modifier = Modifier.weight(1f)
         )
         StatisticCard(
-            title = "Загальний бал",
+            title = stringResource(R.string.home_statistics_total_score),
             value = totalScore.toString(),
             icon = Icons.Default.Star,
             modifier = Modifier.weight(1f)
@@ -178,7 +188,7 @@ private fun StatisticCard(
 @Composable
 private fun RecentAchievementsSection(achievements: List<String>) {
     Text(
-        text = "Останні досягнення",
+        text = stringResource(R.string.home_recent_achievements_title),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)
@@ -213,7 +223,7 @@ private fun RecommendedArticlesSection(
     onArticleClick: (Int) -> Unit
 ) {
     Text(
-        text = "Рекомендовані статті",
+        text = stringResource(R.string.home_recommended_articles_title),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(bottom = 12.dp)

@@ -1,5 +1,7 @@
 package com.example.ukrainehistorylearner
 
+import android.app.Application
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -22,7 +24,11 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -30,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ukrainehistorylearner.data.datastore.SettingsDataStore
 import com.example.ukrainehistorylearner.ui.screens.LoginScreen
 import com.example.ukrainehistorylearner.ui.screens.RegisterScreen
 import com.example.ukrainehistorylearner.ui.screens.HistoricalArticleScreen
@@ -38,6 +45,10 @@ import com.example.ukrainehistorylearner.ui.theme.AppTheme
 import com.example.ukrainehistorylearner.ui.screens.ProfileScreen
 import com.example.ukrainehistorylearner.ui.screens.HomeScreen
 import com.example.ukrainehistorylearner.ui.screens.SettingsScreen
+import com.example.ukrainehistorylearner.ui.viewmodels.SettingsViewModel
+import com.example.ukrainehistorylearner.utils.LocaleHelper
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -49,6 +60,14 @@ class MainActivity : ComponentActivity() {
                 Log.println(Log.INFO, "OnCreate", "Main activity created")
             }
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        val langCode = runBlocking {
+            SettingsDataStore(newBase!!).languageFlow.first()
+        }
+        val context = LocaleHelper.wrapContext(newBase!!, langCode)
+        super.attachBaseContext(context)
     }
 
     override fun onStart() {
@@ -74,11 +93,10 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         Log.println(Log.INFO, "OnResume", "Main activity resumed")
     }
-
 }
 
 data class NavItem(
-    val label: String,
+    val labelRes: Int,
     val icon: ImageVector,
     val route: String
 )
@@ -87,18 +105,27 @@ data class NavItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp() {
+    val context = LocalContext.current
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory(context.applicationContext as Application)
+    )
+
+    LaunchedEffect(Unit) {
+        settingsViewModel.applySavedLanguage()
+    }
+
     val windowSize = currentWindowAdaptiveInfo().windowSizeClass
     val navController = rememberNavController()
     val currentRoute by navController.currentBackStackEntryAsState()
 
     val navItems = listOf(
-        NavItem("Головна", Icons.Default.Home, "home"),
-        NavItem("Вікторина", Icons.Default.Search, "quiz"),
-        NavItem("Матеріали", Icons.Default.Home, "articles"),
-        NavItem("Вхід", Icons.Default.ExitToApp, "login"),
-        NavItem("Реєстрація", Icons.Default.Add, "register"),
-        NavItem("Профіль", Icons.Default.AccountCircle, "profile"),
-        NavItem("Налаштування", Icons.Default.Settings, "settings")
+        NavItem(R.string.nav_home, Icons.Default.Home, "home"),
+        NavItem(R.string.nav_quiz, Icons.Default.Search, "quiz"),
+        NavItem(R.string.nav_articles, Icons.Default.Home, "articles"),
+        NavItem(R.string.nav_login, Icons.Default.ExitToApp, "login"),
+        NavItem(R.string.nav_register, Icons.Default.Add, "register"),
+        NavItem(R.string.nav_profile, Icons.Default.AccountCircle, "profile"),
+        NavItem(R.string.nav_settings, Icons.Default.Settings, "settings")
     )
 
     when (windowSize.windowWidthSizeClass) {
@@ -107,7 +134,7 @@ fun MainApp() {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("Історія України") },
+                        title = { Text(stringResource(R.string.app_name)) },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -119,9 +146,10 @@ fun MainApp() {
                         val currentDestination = currentRoute?.destination
 
                         navItems.forEach { item ->
+                            val label = stringResource(item.labelRes)
                             NavigationBarItem(
-                                icon = { Icon(item.icon, contentDescription = item.label) },
-                                label = { Text(item.label) },
+                                icon = { Icon(item.icon, contentDescription = label) },
+                                label = { Text(label) },
                                 selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                                 onClick = {
                                     navController.navigate(item.route) {
@@ -154,9 +182,10 @@ fun MainApp() {
                     val currentDestination = currentRoute?.destination
 
                     navItems.forEach { item ->
+                        val label = stringResource(item.labelRes)
                         NavigationRailItem(
-                            icon = { Icon(item.icon, contentDescription = item.label) },
-                            label = { Text(item.label) },
+                            icon = { Icon(item.icon, contentDescription = label) },
+                            label = { Text(label) },
                             selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                             onClick = {
                                 navController.navigate(item.route) {
@@ -177,7 +206,7 @@ fun MainApp() {
 
                 Column(Modifier.weight(1f)) {
                     TopAppBar(
-                        title = { Text("Історія України") },
+                        title = { Text(stringResource(R.string.app_name)) },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -208,7 +237,7 @@ fun MainApp() {
                                 .padding(16.dp)
                         ) {
                             Text(
-                                text = "Історія України",
+                                text = stringResource(R.string.app_name),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(bottom = 8.dp, start = 16.dp)
                             )
@@ -216,9 +245,10 @@ fun MainApp() {
                             val currentDestination = currentRoute?.destination
 
                             navItems.forEach { item ->
+                                val label = stringResource(item.labelRes)
                                 NavigationDrawerItem(
-                                    label = { Text(item.label) },
-                                    icon = { Icon(item.icon, contentDescription = item.label) },
+                                    label = { Text(label) },
+                                    icon = { Icon(item.icon, contentDescription = label) },
                                     selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                                     onClick = {
                                         navController.navigate(item.route) {
@@ -260,20 +290,10 @@ fun AppNavHost(navController: NavHostController) {
         startDestination = Routes.Home.route
     ) {
         composable(Routes.Login.route) {
-            LoginScreen(
-                onNavigateToRegister = {
-                    navController.navigate(Routes.Register.route)
-                }
-            )
+            LoginScreen()
         }
         composable(Routes.Register.route) {
-            RegisterScreen(
-                onNavigateToLogin = {
-                    navController.navigate(Routes.Login.route) {
-                        popUpTo(Routes.Register.route) { inclusive = true }
-                    }
-                }
-            )
+            RegisterScreen()
         }
         composable(Routes.Quiz.route) {
             HistoricalQuizScreen()

@@ -1,44 +1,35 @@
 package com.example.ukrainehistorylearner.ui.screens
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowWidthSizeClass
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
+import com.example.ukrainehistorylearner.model.User
 import com.example.ukrainehistorylearner.ui.components.AdaptiveDatePickerDialog
 import com.example.ukrainehistorylearner.ui.viewmodels.ProfileViewModel
 import com.example.ukrainehistorylearner.ui.viewmodels.ProfileEvent
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -48,6 +39,7 @@ fun ProfileScreen(
     onNavigateToLogin: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(uiState.isLoggedOut) {
         if (uiState.isLoggedOut) {
@@ -75,8 +67,11 @@ fun ProfileScreen(
         }
 
         // Error message
-        uiState.errorMessage?.let { error ->
+        uiState.errorMessageResId?.let { resId ->
             item {
+                val errorMessageOnly = uiState.errorMessageResId?.let { resId -> stringResource(resId) }
+                val errorMessage = stringResource(resId)
+                val details = uiState.errorMessageDetails
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
@@ -95,7 +90,11 @@ fun ProfileScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = error,
+                            text = if (details != null) {
+                                "$errorMessage: $details"
+                            } else {
+                                errorMessageOnly!!
+                            },
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
                         Spacer(modifier = Modifier.weight(1f))
@@ -114,7 +113,7 @@ fun ProfileScreen(
         }
 
         // Success message
-        uiState.successMessage?.let { success ->
+        uiState.successMessageResId?.let { resId ->
             item {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -134,7 +133,7 @@ fun ProfileScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = success,
+                            text = stringResource(resId),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.weight(1f))
@@ -180,13 +179,16 @@ fun ProfileScreen(
                     selectedPeriods = uiState.selectedHistoricalPeriods,
                     onPeriodToggled = { period ->
                         viewModel.handleEvent(ProfileEvent.HistoricalPeriodToggled(period))
-                    }
+                    },
+                    context = context
                 )
             }
         } else if (uiState.user != null) {
             // Show favorite periods when not editing
             item {
-                FavoritePeriodsSection(uiState.user!!.favoriteHistoricalPeriods)
+                FavoritePeriodsSection(
+                    context = context,
+                    favoritePeriods = uiState.user!!.favoriteHistoricalPeriods)
             }
         }
 
@@ -217,7 +219,7 @@ fun ProfileScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileHeaderSection(
-    user: com.example.ukrainehistorylearner.model.User?,
+    user: User?,
     isEditing: Boolean,
     editUsername: String,
     editBirthDate: LocalDate?,
@@ -231,15 +233,12 @@ fun ProfileHeaderSection(
             modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.Start
         ) {
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (isEditing) {
                 // Edit mode
                 OutlinedTextField(
                     value = editUsername,
                     onValueChange = { onEvent(ProfileEvent.EditUsernameChanged(it)) },
-                    label = { Text("Логін") },
+                    label = { Text(stringResource(R.string.username)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -249,7 +248,7 @@ fun ProfileHeaderSection(
                 OutlinedTextField(
                     value = editBirthDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: "",
                     onValueChange = { },
-                    label = { Text("Дата народження") },
+                    label = { Text(stringResource(R.string.birthdate)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onEvent(ProfileEvent.ShowDatePicker) },
@@ -263,7 +262,7 @@ fun ProfileHeaderSection(
             } else {
                 // View mode
                 Text(
-                    text = user?.username ?: "Не вказано",
+                    text = user?.username ?: stringResource(R.string.not_specified),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -271,7 +270,7 @@ fun ProfileHeaderSection(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Дата народження: ${user?.birthDate ?: "Не вказано"}",
+                    text = "${stringResource(R.string.birthdate)}: ${user?.birthDate?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: stringResource(R.string.not_specified)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -292,7 +291,7 @@ fun UserStatsSection(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Статистика",
+                text = stringResource(R.string.home_statistics_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -306,13 +305,13 @@ fun UserStatsSection(
                 StatItem(
                     icon = Icons.Default.Info,
                     value = articlesRead.toString(),
-                    label = "Прочитано статей"
+                    label = stringResource(R.string.home_statistics_articles_read)
                 )
 
                 StatItem(
                     icon = Icons.Default.Star,
                     value = "${averageScore.toInt()}%",
-                    label = "Середній бал"
+                    label = stringResource(R.string.profile_statistics_average_score)
                 )
             }
         }
@@ -350,6 +349,7 @@ fun StatItem(
 
 @Composable
 fun HistoricalPeriodsSection(
+    context: Context,
     selectedPeriods: List<HistoricalPeriod>,
     onPeriodToggled: (HistoricalPeriod) -> Unit
 ) {
@@ -360,7 +360,7 @@ fun HistoricalPeriodsSection(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Улюблені історичні періоди",
+                text = stringResource(R.string.profile_historical_periods_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -375,7 +375,7 @@ fun HistoricalPeriodsSection(
                         onClick = { onPeriodToggled(period) },
                         label = {
                             Text(
-                                text = period.getYearRange(),
+                                text = period.getYearRange(context),
                                 fontSize = 12.sp
                             )
                         },
@@ -389,6 +389,7 @@ fun HistoricalPeriodsSection(
 
 @Composable
 fun FavoritePeriodsSection(
+    context: Context,
     favoritePeriods: List<HistoricalPeriod>
 ) {
     if (favoritePeriods.isNotEmpty()) {
@@ -399,7 +400,7 @@ fun FavoritePeriodsSection(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Улюблені періоди",
+                    text = stringResource(R.string.profile_favorite_periods_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -420,7 +421,7 @@ fun FavoritePeriodsSection(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = period.getYearRange(),
+                                    text = period.getYearRange(context),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
@@ -454,7 +455,7 @@ fun ActionButtonsSection(
                 ) {
                     Icon(Icons.Default.Close, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Скасувати")
+                    Text(stringResource(R.string.cancel))
                 }
 
                 Button(
@@ -464,7 +465,7 @@ fun ActionButtonsSection(
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Зберегти")
+                    Text(stringResource(R.string.save))
                 }
             }
         } else {
@@ -475,7 +476,7 @@ fun ActionButtonsSection(
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Редагувати профіль")
+                Text(stringResource(R.string.profile_edit_profile))
             }
 
             OutlinedButton(
@@ -487,7 +488,7 @@ fun ActionButtonsSection(
             ) {
                 Icon(Icons.Default.ExitToApp, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Вийти з системи")
+                Text(stringResource(R.string.profile_logout))
             }
         }
     }

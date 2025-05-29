@@ -1,5 +1,6 @@
 package com.example.ukrainehistorylearner.model
 
+import android.content.Context
 import java.util.UUID
 
 class HistoricalArticle(
@@ -11,8 +12,8 @@ class HistoricalArticle(
     val tags: List<String> = emptyList()
 ) : HistoricalMaterial(id, title, period) {
 
-    override fun display() {
-        println("Стаття: $title (Автор: $author, Період: ${period.getYearRange()})")
+    override fun display(context: Context) {
+        println("Стаття: $title (Автор: $author, Період: ${period.getYearRange(context)})")
         if (tags.isNotEmpty()) {
             println("Теги: ${tags.joinToString(", ")}")
         }

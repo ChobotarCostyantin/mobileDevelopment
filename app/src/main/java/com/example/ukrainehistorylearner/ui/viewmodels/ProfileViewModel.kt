@@ -4,9 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.User
 import com.example.ukrainehistorylearner.model.HistoricalPeriod
-import com.example.ukrainehistorylearner.repository.UserRepository
+import com.example.ukrainehistorylearner.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +22,9 @@ data class ProfileUiState(
     val editBirthDate: LocalDate? = null,
     val selectedHistoricalPeriods: List<HistoricalPeriod> = emptyList(),
     val showDatePicker: Boolean = false,
-    val errorMessage: String? = null,
-    val successMessage: String? = null,
+    val errorMessageResId: Int? = null,
+    val errorMessageDetails: String? = null,
+    val successMessageResId: Int? = null,
     val totalArticlesRead: Int = 0,
     val quizScoreAverage: Float = 0f,
     val isLoggedOut: Boolean = false
@@ -42,6 +44,7 @@ sealed class ProfileEvent {
     object ClearMessages : ProfileEvent()
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class ProfileViewModel(
     private val userRepository: UserRepository = UserRepository()
 ) : ViewModel() {
@@ -53,7 +56,6 @@ class ProfileViewModel(
         loadProfile()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun handleEvent(event: ProfileEvent) {
         when (event) {
             is ProfileEvent.LoadProfile -> loadProfile()
@@ -63,14 +65,16 @@ class ProfileViewModel(
             is ProfileEvent.EditUsernameChanged -> {
                 _uiState.value = _uiState.value.copy(
                     editUsername = event.username,
-                    errorMessage = null
+                    errorMessageResId = null,
+                    errorMessageDetails = null
                 )
             }
             is ProfileEvent.EditBirthDateChanged -> {
                 _uiState.value = _uiState.value.copy(
                     editBirthDate = event.birthDate,
                     showDatePicker = false,
-                    errorMessage = null
+                    errorMessageResId = null,
+                    errorMessageDetails = null
                 )
             }
             is ProfileEvent.HistoricalPeriodToggled -> {
@@ -85,8 +89,9 @@ class ProfileViewModel(
             is ProfileEvent.Logout -> logout()
             is ProfileEvent.ClearMessages -> {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = null,
-                    successMessage = null
+                    errorMessageResId = null,
+                    errorMessageDetails = null,
+                    successMessageResId = null
                 )
             }
         }
@@ -94,7 +99,11 @@ class ProfileViewModel(
 
     private fun loadProfile() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessageResId = null,
+                errorMessageDetails = null
+            )
 
             try {
                 val user = userRepository.getCurrentUser()
@@ -109,13 +118,14 @@ class ProfileViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка завантаження профілю: ${e.message}"
+                    errorMessageResId = R.string.profile_error_loading_profile,
+                    errorMessageDetails = e.message
+
                 )
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun startEditing() {
         val currentUser = _uiState.value.user
         if (currentUser != null) {
@@ -123,12 +133,13 @@ class ProfileViewModel(
                 isEditing = true,
                 editUsername = currentUser.username,
                 editBirthDate = try {
-                    LocalDate.parse(currentUser.birthDate)
+                    currentUser.birthDate
                 } catch (e: Exception) {
                     null
                 },
                 selectedHistoricalPeriods = currentUser.favoriteHistoricalPeriods,
-                errorMessage = null
+                errorMessageResId = null,
+                errorMessageDetails = null
             )
         }
     }
@@ -140,7 +151,8 @@ class ProfileViewModel(
             editBirthDate = null,
             selectedHistoricalPeriods = emptyList(),
             showDatePicker = false,
-            errorMessage = null
+            errorMessageResId = null,
+            errorMessageDetails = null
         )
     }
 
@@ -151,23 +163,27 @@ class ProfileViewModel(
 
             if (currentUser == null) {
                 _uiState.value = currentState.copy(
-                    errorMessage = "Користувач не знайдений"
+                    errorMessageResId = R.string.profile_error_user_not_found
                 )
                 return@launch
             }
 
             val validationError = validateEditForm(currentState)
             if (validationError != null) {
-                _uiState.value = currentState.copy(errorMessage = validationError)
+                _uiState.value = currentState.copy(errorMessageResId = validationError)
                 return@launch
             }
 
-            _uiState.value = currentState.copy(isLoading = true, errorMessage = null)
+            _uiState.value = currentState.copy(
+                isLoading = true,
+                errorMessageResId = null,
+                errorMessageDetails = null
+            )
 
             try {
                 val updatedUser = currentUser.copy(
                     username = currentState.editUsername,
-                    birthDate = currentState.editBirthDate?.toString() ?: currentUser.birthDate,
+                    birthDate = currentState.editBirthDate ?: currentUser.birthDate,
                     favoriteHistoricalPeriods = currentState.selectedHistoricalPeriods
                 )
 
@@ -177,7 +193,7 @@ class ProfileViewModel(
                     user = updatedUser,
                     isLoading = false,
                     isEditing = false,
-                    successMessage = "Профіль успішно оновлено",
+                    successMessageResId = R.string.profile_success_updated_profile,
                     editUsername = "",
                     editBirthDate = null,
                     selectedHistoricalPeriods = emptyList()
@@ -185,7 +201,8 @@ class ProfileViewModel(
             } catch (e: Exception) {
                 _uiState.value = currentState.copy(
                     isLoading = false,
-                    errorMessage = "Помилка збереження профілю: ${e.message}"
+                    errorMessageResId = R.string.profile_error_saving_profile,
+                    errorMessageDetails = e.message
                 )
             }
         }
@@ -200,7 +217,8 @@ class ProfileViewModel(
         }
         _uiState.value = _uiState.value.copy(
             selectedHistoricalPeriods = currentPeriods,
-            errorMessage = null
+            errorMessageResId = null,
+            errorMessageDetails = null
         )
     }
 
@@ -214,17 +232,19 @@ class ProfileViewModel(
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "Помилка виходу з системи: ${e.message}"
+                    errorMessageResId = R.string.profile_error_logging_out,
+                    errorMessageDetails = e.message
                 )
             }
         }
     }
 
-    private fun validateEditForm(state: ProfileUiState): String? {
+    private fun validateEditForm(state: ProfileUiState): Int? {
         return when {
-            state.editUsername.isBlank() -> "Логін не може бути порожнім"
-            state.editUsername.length < 3 -> "Логін повинен містити принаймні 3 символи"
-            state.editBirthDate == null -> "Оберіть дату народження"
+            state.editUsername.isBlank() -> R.string.profile_error_empty_username
+            state.editUsername.length < 3 -> R.string.profile_error_short_username
+            state.editBirthDate == null -> R.string.profile_error_no_birthdate
+            state.editBirthDate.isAfter(LocalDate.now()) -> R.string.profile_error_birthdate_in_future
             else -> null
         }
     }

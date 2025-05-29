@@ -1,10 +1,25 @@
 package com.example.ukrainehistorylearner.ui.viewmodels
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
+
+enum class RegisterError {
+    EMPTY_USERNAME,
+    SHORT_USERNAME,
+    EMPTY_PASSWORD,
+    SHORT_PASSWORD,
+    EMPTY_CONFIRM_PASSWORD,
+    PASSWORD_MISMATCH,
+    NO_BIRTHDATE,
+    BIRTHDATE_IN_FUTURE,
+    PRIVACY_POLICY_NOT_ACCEPTED,
+    USER_ALREADY_EXISTS
+}
 
 data class RegisterUiState(
     val username: String = "",
@@ -15,7 +30,7 @@ data class RegisterUiState(
     val acceptedPrivacyPolicy: Boolean = false,
     val showDatePicker: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessage: RegisterError? = null,
     val isRegistrationSuccessful: Boolean = false
 )
 
@@ -32,6 +47,7 @@ sealed class RegisterEvent {
     object ClearError : RegisterEvent()
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class RegisterViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
@@ -103,27 +119,27 @@ class RegisterViewModel : ViewModel() {
         if (currentState.username == "admin") {
             _uiState.value = currentState.copy(
                 isLoading = false,
-                errorMessage = "Користувач з таким логіном вже існує"
+                errorMessage = RegisterError.USER_ALREADY_EXISTS
             )
         } else {
             _uiState.value = currentState.copy(
                 isLoading = false,
                 isRegistrationSuccessful = true
             )
-            println("Успішна реєстрація: логін - ${currentState.username}, дата народження - ${currentState.birthDate}")
         }
     }
 
-    private fun validateForm(state: RegisterUiState): String? {
+    private fun validateForm(state: RegisterUiState): RegisterError? {
         return when {
-            state.username.isBlank() -> "Логін не може бути порожнім"
-            state.username.length < 3 -> "Логін повинен містити принаймні 3 символи"
-            state.password.isBlank() -> "Пароль не може бути порожнім"
-            state.password.length < 6 -> "Пароль повинен містити принаймні 6 символів"
-            state.confirmPassword.isBlank() -> "Підтвердження паролю не може бути порожнім"
-            state.password != state.confirmPassword -> "Паролі не збігаються"
-            state.birthDate == null -> "Оберіть дату народження"
-            !state.acceptedPrivacyPolicy -> "Необхідно прийняти політику конфіденційності"
+            state.username.isBlank() -> RegisterError.EMPTY_USERNAME
+            state.username.length < 3 -> RegisterError.SHORT_USERNAME
+            state.password.isBlank() -> RegisterError.EMPTY_PASSWORD
+            state.password.length < 6 -> RegisterError.SHORT_PASSWORD
+            state.confirmPassword.isBlank() -> RegisterError.EMPTY_CONFIRM_PASSWORD
+            state.password != state.confirmPassword -> RegisterError.PASSWORD_MISMATCH
+            state.birthDate == null -> RegisterError.NO_BIRTHDATE
+            state.birthDate.isAfter(LocalDate.now()) -> RegisterError.BIRTHDATE_IN_FUTURE
+            !state.acceptedPrivacyPolicy -> RegisterError.PRIVACY_POLICY_NOT_ACCEPTED
             else -> null
         }
     }

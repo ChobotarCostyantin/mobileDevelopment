@@ -1,9 +1,12 @@
 package com.example.ukrainehistorylearner.ui.viewmodels
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.User
-import com.example.ukrainehistorylearner.repository.UserRepository
+import com.example.ukrainehistorylearner.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +20,8 @@ data class HomeUiState(
     val recentAchievements: List<String> = emptyList(),
     val recommendedArticles: List<String> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessageResId: Int? = null,
+    val errorMessageDetails: String? = null
 )
 
 sealed class HomeEvent {
@@ -27,6 +31,7 @@ sealed class HomeEvent {
     object ClearError : HomeEvent()
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class HomeViewModel(
     private val userRepository: UserRepository = UserRepository()
 ) : ViewModel() {
@@ -46,14 +51,14 @@ class HomeViewModel(
                 refreshData()
             }
             is HomeEvent.ClearError -> {
-                _uiState.value = _uiState.value.copy(errorMessage = null)
+                _uiState.value = _uiState.value.copy(errorMessageResId = null)
             }
         }
     }
 
     private fun loadHomeData() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessageResId = null)
 
             try {
                 // Завантаження даних користувача
@@ -72,13 +77,12 @@ class HomeViewModel(
                     isLoading = false
                 )
 
-                println("Дані головної сторінки завантажено для користувача: ${currentUser?.username}")
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = "Помилка завантаження даних: ${e.message}"
+                    errorMessageResId = R.string.home_error_loading_data,
+                    errorMessageDetails = e.message
                 )
-                println("Помилка завантаження даних головної сторінки: ${e.message}")
             }
         }
     }
@@ -87,13 +91,12 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 userRepository.markArticleAsClicked(articleId)
-                println("Стаття з ID $articleId відкрита користувачем")
-
                 // Оновлення статистики після кліку на статтю
                 loadHomeData()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "Помилка при відкритті статті: ${e.message}"
+                    errorMessageResId = R.string.home_error_statistics_update,
+                    errorMessageDetails = e.message
                 )
             }
         }

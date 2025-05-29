@@ -1,13 +1,15 @@
 package com.example.ukrainehistorylearner.model
 
+import android.content.Context
+
 open class HistoricalMaterial(
     val id: String,
     val title: String,
     val period: HistoricalPeriod,
 ) {
 
-    open fun display() {
-        println("Матеріал: $title (${period.getYearRange()}")
+    open fun display(context: Context) {
+        println("Матеріал: $title (${period.getYearRange(context)}")
     }
 
     open fun getFullInfo(): String {

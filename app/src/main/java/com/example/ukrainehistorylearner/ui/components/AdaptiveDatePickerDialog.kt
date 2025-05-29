@@ -22,10 +22,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.example.ukrainehistorylearner.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -58,7 +60,7 @@ fun AdaptiveDatePickerDialog(
                     ) { Text("OK") }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) { Text("Скасувати") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                 },
                 modifier = Modifier
                     .widthIn(min = 400.dp, max = 600.dp)
@@ -84,7 +86,7 @@ fun AdaptiveDatePickerDialog(
                     ) { Text("OK") }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) { Text("Скасувати") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                 }
             ) {
                 DatePicker(state = datePickerState)
@@ -112,7 +114,7 @@ fun AdaptiveDatePickerDialog(
                             horizontalArrangement = Arrangement.End
                         ) {
                             TextButton(onClick = onDismiss) {
-                                Text("Скасувати", fontSize = 14.sp)
+                                Text(stringResource(R.string.cancel), fontSize = 14.sp)
                             }
                             Spacer(Modifier.width(8.dp))
                             TextButton(
@@ -149,7 +151,7 @@ fun AdaptiveDatePickerDialog(
                     ) { Text("OK") }
                 },
                 dismissButton = {
-                    TextButton(onClick = onDismiss) { Text("Скасувати") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                 },
                 text = {
                     DatePicker(state = datePickerState)

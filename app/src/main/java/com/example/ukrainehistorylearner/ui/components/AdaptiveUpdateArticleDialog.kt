@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,10 +22,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.example.ukrainehistorylearner.R
 import com.example.ukrainehistorylearner.model.HistoricalArticle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +39,8 @@ fun AdaptiveUpdateArticleDialog(
     article: HistoricalArticle,
     windowSize: WindowSizeClass
 ) {
+    val context = LocalContext.current
+
     var title by remember { mutableStateOf(article.title) }
     var selectedPeriod by remember { mutableStateOf(article.period) }
     var author by remember { mutableStateOf(article.author) }
@@ -72,10 +74,10 @@ fun AdaptiveUpdateArticleDialog(
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Назва") },
+            label = { Text(stringResource(R.string.article_title)) },
             isError = titleError,
             supportingText = {
-                if (titleError) Text("Назва не може бути порожньою")
+                if (titleError) Text(stringResource(R.string.article_title_error))
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -83,17 +85,18 @@ fun AdaptiveUpdateArticleDialog(
 
         PeriodDropdown(
             selected = selectedPeriod,
-            onPeriodSelected = { selectedPeriod = it }
+            onPeriodSelected = { selectedPeriod = it },
+            context = context
         )
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = author,
             onValueChange = { author = it },
-            label = { Text("Автор") },
+            label = { Text(stringResource(R.string.article_author)) },
             isError = authorError,
             supportingText = {
-                if (authorError) Text("Автор не може бути порожнім")
+                if (authorError) Text(stringResource(R.string.article_author_error))
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -102,10 +105,10 @@ fun AdaptiveUpdateArticleDialog(
         OutlinedTextField(
             value = wordCount,
             onValueChange = { wordCount = it },
-            label = { Text("Кількість слів") },
+            label = { Text(stringResource(R.string.article_word_count)) },
             isError = wordCountError,
             supportingText = {
-                if (wordCountError) Text("Введіть коректну кількість (> 0)")
+                if (wordCountError) Text(stringResource(R.string.article_word_count_error))
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -114,7 +117,7 @@ fun AdaptiveUpdateArticleDialog(
         OutlinedTextField(
             value = tags,
             onValueChange = { tags = it },
-            label = { Text("Теги (через кому)") },
+            label = { Text(stringResource(R.string.article_add_and_edit_tags)) },
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -125,15 +128,15 @@ fun AdaptiveUpdateArticleDialog(
                 onDismissRequest = onDismiss,
                 confirmButton = {
                     TextButton(onClick = confirmAction) {
-                        Text("Оновити")
+                        Text(stringResource(R.string.update))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("Скасувати")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
-                title = { Text("Оновлення статті") },
+                title = { Text(stringResource(R.string.article_edit_title)) },
                 text = {
                     Column(
                         modifier = Modifier
@@ -158,7 +161,7 @@ fun AdaptiveUpdateArticleDialog(
                             .verticalScroll(rememberScrollState())
                     ) {
                         Text(
-                            text = "Оновлення статті",
+                            text = stringResource(R.string.article_edit_title),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                             fontSize = 20.sp
                         )
@@ -174,11 +177,11 @@ fun AdaptiveUpdateArticleDialog(
                             horizontalArrangement = Arrangement.End
                         ) {
                             TextButton(onClick = onDismiss) {
-                                Text("Скасувати", fontSize = 14.sp)
+                                Text(stringResource(R.string.cancel), fontSize = 14.sp)
                             }
                             Spacer(Modifier.width(8.dp))
                             TextButton(onClick = confirmAction) {
-                                Text("Оновити", fontSize = 14.sp)
+                                Text(stringResource(R.string.update), fontSize = 14.sp)
                             }
                         }
                     }
@@ -190,15 +193,15 @@ fun AdaptiveUpdateArticleDialog(
                 onDismissRequest = onDismiss,
                 confirmButton = {
                     TextButton(onClick = confirmAction) {
-                        Text("Оновити")
+                        Text(stringResource(R.string.update))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("Скасувати")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
-                title = { Text("Оновлення статті") },
+                title = { Text(stringResource(R.string.article_edit_title)) },
                 text = content
             )
         }
